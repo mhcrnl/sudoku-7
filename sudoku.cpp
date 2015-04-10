@@ -62,104 +62,37 @@ bool verifySudoku(vector<vector<int> > * sudoku){
 	}
 	return true;
 }
-/*
-
-1 2 3 4 5 6 7 8 .
-4 5 6 . 8 9 1 2 . 
-. . . . . . . . . 
-2 3 4 . 6 7 8 9 . 
-5 6 7 . 9 1 2 3 . 
-8 9 1 . 3 4 5 6 . 
-3 4 5 . 7 8 9 1 . 
-. . . . . . . . . 
-9 1 2 . 4 5 6 7 . 
-
-
-*/
-// 2, 5
-bool boxVerifier(vector<vector<int> > *vec, int x, int y){
-	cout << "Verifier" << endl;
-	set<int> test;
-	int rowFactor = (x)/3;
-	int colFactor = (y)/3;
-	for(int i=3*rowFactor; i<(3*(rowFactor+1)); i++){
-		for(int j=3*colFactor; j<(3*(1+colFactor)); j++){
-			if(vec->at(i).at(j) != '.'){
-				if(test.find(vec->at(i).at(j)) == test.end()){
-					test.insert(vec->at(i).at(j));
-				}else{
-					return false;
-				}
-			}
-		}
-	}
-	return true;
-}
-
-
-bool solverHelper(vector<vector<int> > *vec, vector<set<int> > *rows, vector<set<int> > *cols, int cur_row){
+int solver(vector<vector<int> > *sudoku){
     int solutions = 0;
-    int count =0;
-    for(int i=0; i<9; i++){
-    	count += rows->at(i).size();
+    int index = 0;
+    while(sudoku->at(index%9).at(index/9) != '.'){
+        index++;
+        if(index == 81){
+            cout << "Solution : " << endl;
+            printBoard(sudoku);
+            cout << endl << endl;
+            return 1;
+        }
     }
-    cout<< "Count " << count << endl;
-    if(count == 78){ 
-    	printBoard(vec);
-    	return 1;
+    int i=index%9, j=index/9;
+    for(int l = 1; l<=9; l++){  // find a a number that can fit
+        bool testing = true;
+        for(int n = 0; n<9; n++){ // i=4  j=6;
+            int box_x = (i/3)*3+n%3;
+            int box_y = (j/3)*3+n/3;
+            if((sudoku->at(i).at(n) == l) || (sudoku->at(n).at(j) == l ) || (sudoku->at(box_x).at(box_y)==l)){
+                testing = false; n = 9;
+            }
+        }
+        if(testing){
+            sudoku->at(i).at(j) = l;
+            
+                solutions += solver(sudoku);
+            
+            sudoku->at(i).at(j) = '.';
+        }
     }
-    for(int i=cur_row; i<9; i++){ // rows
-    	//if(i == 2){return 5;}
-	    if(rows->at(i).size() < 9){	
-	        for(int j=0; j<9; j++){ // columns
-	        	cout << "r : " << i << "    c : " << j ;
-	            if(vec->at(i).at(j) == '.'){ //Empty cell
-	            	cout << "   empty ";
-	                for(int l = 0; l<9; l++){  // find a a number that can fit
-	                    if( (rows->at(i).find(l+1)==rows->at(i).end()) && (cols->at(j).find(l+1)==cols->at(j).end())){
-	                    	//if(boxVerifier(vec, i, j)){
-		                    	cout << "Filling with " << l+1 << "   " << endl;
-		                        rows->at(i).insert(l+1); 
-		                        cols->at(j).insert(l+1);
-		                        vec->at(i).at(j) = l+1;
-		                        if(solverHelper(vec, rows, cols, i)){
-		                        	return true;
-		                        }
-		                       cout << "Removing " << l+1 << "    " << endl;
-		                        rows->at(i).erase(rows->at(i).find(l+1)); 
-		                        cols->at(j).erase(cols->at(j).find(l+1));
-		                        vec->at(i).at(j) = '.';
-		                    //}
-	                    }else if(l==8){
-	                    	return 0;
-	                    }
-	                }
-
-	            }cout << endl;
-	        }
-	    }
-    }
-
-    return false;
-}
-
-bool solveSudoku(vector<vector<int> > *vec){
-	vector<set<int> > rows, cols;
-	for(int i=0; i<9; i++){
-		set<int> temp;
-		rows.push_back(temp); cols.push_back(temp);
-	}
-	for(int i=0; i<9; i++){
-		for(int j=0; j<9; j++){
-			if(vec->at(i).at(j) != '.'){
-				rows.at(i).insert(vec->at(i).at(j));
-			}
-			if(vec->at(j).at(i) != '.'){
-				rows.at(j).insert(vec->at(j).at(i));
-			}
-		}
-	}
-	return solverHelper(vec, &rows, &cols, 0);
+    return solutions;
 }
 
 void swapRows(vector<vector<int> > *vec, int row1, int row2){
@@ -204,7 +137,7 @@ int main(){
 
 	cout << "\n\nTrying to solve it now! \n\n";
 
-	cout << "\n\nSolve value : " << solveSudoku(&sudoku) << endl << endl;
+	cout << "\n\nSolve value : " << solver(&sudoku) << endl << endl;
 
 
 
