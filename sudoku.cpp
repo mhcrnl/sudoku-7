@@ -112,12 +112,20 @@ void makePuzzle(vector<vector<int> > *vec){
 	cout << "\n\n----------making a board------------\n\n";
 	int i=5;
 	for(int i=0; i<9; i++){
-		vec->at(2).at(i) = '.';
-		vec->at(7).at(i) = '.';
-		vec->at(i).at(3) = '.';
-		vec->at(i).at(8) = '.';
+		if(i%2==0){
+			vec->at(2).at(i) = '.';
+			vec->at(7).at(i) = '.';
+		}else{
+			vec->at(3).at(i) = '.';
+			vec->at(4).at(i) = '.';
+		}
+		vec->at(i).at(i) = '.';
+		vec->at(i).at(8-i) = '.';
 	}
 	swapCols(vec, 0, 2);
+	swapCols(vec, 3, 5);
+	swapRows(vec, 1, 2);
+	swapRows(vec, 7, 6);
 
 }
 
